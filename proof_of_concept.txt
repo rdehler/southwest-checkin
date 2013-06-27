@@ -1,0 +1,87 @@
+// this works from execute anonymous
+
+Http http = new Http();
+
+
+HttpRequest req = new HttpRequest();
+req.setEndPoint('http://www.southwest.com/flight/retrieveCheckinDoc.html?forceNewSession=yes');
+req.setMethod('GET');
+req.setHeader('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36');
+req.setHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8');
+req.setHeader('Accept-Encoding', 'gzip,deflate,sdch');
+req.setHeader('Accept-Language', 'en-US,en;q=0.8');
+HTTPResponse res = http.send(req);
+String cookie = res.getHeader('Set-Cookie');
+
+
+
+req = new HttpRequest();
+req.setEndPoint('http://www.southwest.com/flight/retrieveCheckinDoc.html?forceNewSession=yes');
+req.setMethod('POST');
+req.setBody('firstName=Kathryn&lastName=Dehler&confirmationNumber=A5GKU3');
+req.setHeader('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36');
+req.setHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8');
+req.setHeader('Accept-Encoding', 'gzip,deflate,sdch');
+req.setHeader('Accept-Language', 'en-US,en;q=0.8');
+req.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+req.setHeader('Origin', 'http://www.southwest.com');
+req.setHeader('Referer', 'http://www.southwest.com/flight/retrieveCheckinDoc.html?forceNewSession=yes');
+req.setHeader('Cookie', cookie);
+res = http.send(req);
+
+String newURL = res.getHeader('Location');
+cookie = res.getHeader('Set-Cookie');
+req = new HttpRequest();
+req.setEndpoint(newURL);
+req.setMethod('GET');
+req.setHeader('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36');
+req.setHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8');
+req.setHeader('Accept-Encoding', 'gzip,deflate,sdch');
+req.setHeader('Accept-Language', 'en-US,en;q=0.8');
+req.setHeader('Cookie', cookie);
+res = http.send(req);
+cookie = res.getHeader('Set-Cookie');
+
+req = new HttpRequest();
+req.setEndpoint('http://www.southwest.com/flight/selectPrintDocument.html');
+req.setMethod('POST');
+req.setHeader('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36');
+req.setHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8');
+req.setHeader('Accept-Encoding', 'gzip,deflate,sdch');
+req.setHeader('Accept-Language', 'en-US,en;q=0.8');
+req.setHeader('Cookie', cookie);
+req.setBody('checkinPassengers[0].selected=true&formToken&printDocuments=Check+In');
+
+res = http.send(req);
+
+cookie = res.getHeader('Set-Cookie');
+newURL = res.getHeader('Location');
+req = new HttpRequest();
+req.setEndpoint(newURL);
+req.setMethod('GET');
+req.setHeader('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36');
+req.setHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8');
+req.setHeader('Accept-Encoding', 'gzip,deflate,sdch');
+req.setHeader('Accept-Language', 'en-US,en;q=0.8');
+req.setHeader('Cookie', cookie);
+res = http.send(req);
+String body = res.getBody();
+
+// multi-line
+String regex = '(?m)^.*boarding([^\\.])\\.gif.*$';
+
+Matcher m = Pattern.compile(regex).matcher(body);
+String letter;
+String boardNumber;
+
+while(m.find()) {
+  if (letter == null) {
+    letter = m.group(1);
+  } else if (boardNumber == null) {
+    boardNumber = m.group(1);
+  } else {
+    boardNumber += m.group(1);
+  }
+}
+
+System.debug('You are in '+letter+ boardNumber);
